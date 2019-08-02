@@ -5,6 +5,7 @@ library(dplyr)
 noaa_df = readr::read_csv("./habsos_20190211.csv")
 names(noaa_df)
 
+noaa_df[noaa_df == 0] <- NA
 
 ### Selcting rows of interest
 noaa_df = select(noaa_df, longitude, latitude, description, cellcount, state_id, sample_date, water_temp, species, salinity, sample_depth, genus)
@@ -77,13 +78,28 @@ noaa_df = noaa_df %>%
 class(noaa_df$state_id)
 levels(noaa_df$state_id)
 
+###############################################Cell count > mL
+x = noaa_df$cellcount
+to_ml = function(x){
+  rge = range(x, na.rm = TRUE)
+  return(x / 1000)
+}
 
-############################################### OMIT NAs
+noaa_df = noaa_df %>%
+  mutate(cellcount = to_ml(cellcount))
 
-noaa_test = na.omit(noaa_df)
-head(noaa_test)
+summary(noaa_df$cellcount)
+
+
+
+############################################### SELECT only 2000 - 2019 observations
+summary(noaa_df$sample_date)
+
+
+noaa_df = noaa_df[noaa_df$sample_date >= "2000-01-01" & noaa_df$sample_date <= "2019-02-07",]
+
 
 ############################################### Write csv
 
 write.csv(noaa_df, file = "NOAA_Shiny_ALL.csv", row.names = TRUE)
-write.csv(noaa_df, file = "NOAA_Shiny_Omit.csv", row.names = TRUE)
+
