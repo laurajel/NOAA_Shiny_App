@@ -25,6 +25,7 @@ class(noaa_df$sample_date)
 noaa_df <- noaa_df %>% mutate(sample_date = as.Date(as.POSIXct(sample_date, tz = " " )))
 class(noaa_df$sample_date)
 
+
 ###### new month/year columns
 noaa_df <- noaa_df %>% 
   mutate(sample_date = as.Date(sample_date, "%Y-%m-%d")) %>%
@@ -52,6 +53,7 @@ levels(noaa_df$month)
 unique(noaa_df$year)
 unique(noaa_df$month)
 
+
 ####################################################### TEMPERATURE
 ##### converting degrees C into F function
 to_f = function(x){
@@ -75,18 +77,19 @@ noaa_df = noaa_df %>%
   mutate(state_id = as.factor(state_id))
 
 #CHECK
+
 class(noaa_df$state_id)
 levels(noaa_df$state_id)
 
-###############################################Cell count > mL
-x = noaa_df$cellcount
-to_ml = function(x){
-  rge = range(x, na.rm = TRUE)
-  return(x / 1000)
-}
+###############################################Cell count > mL (Kept in L in final)
+#x = noaa_df$cellcount
+#to_ml = function(x){
+#  rge = range(x, na.rm = TRUE)
+#  return(x / 1000)
+#}
 
-noaa_df = noaa_df %>%
-  mutate(cellcount = to_ml(cellcount))
+#noaa_df = noaa_df %>%
+#  mutate(cellcount = to_ml(cellcount))
 
 summary(noaa_df$cellcount)
 
@@ -100,6 +103,8 @@ noaa_df = noaa_df[noaa_df$sample_date >= "2000-01-01" & noaa_df$sample_date <= "
 
 
 ############################################### Write csv
+noaa_df = na.omit(noaa_df)
 
 write.csv(noaa_df, file = "NOAA_Shiny_ALL.csv", row.names = TRUE)
+
 
