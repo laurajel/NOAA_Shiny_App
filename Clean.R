@@ -1,11 +1,13 @@
 library(tidyverse)
 library(dplyr)
 
+
 ### importing csv
 noaa_df = readr::read_csv("./habsos_20190211.csv")
 names(noaa_df)
 
 noaa_df[noaa_df == 0] <- NA
+
 
 ### Selcting rows of interest
 noaa_df = select(noaa_df, longitude, latitude, description, cellcount, state_id, sample_date, water_temp, species, salinity, sample_depth, genus)
@@ -81,15 +83,25 @@ noaa_df = noaa_df %>%
 class(noaa_df$state_id)
 levels(noaa_df$state_id)
 
-###############################################Cell count > mL (Kept in L in final)
-#x = noaa_df$cellcount
-#to_ml = function(x){
-#  rge = range(x, na.rm = TRUE)
-#  return(x / 1000)
-#}
+summary(noaa_df$cellcount)
+###############################################Cell count replace outliers with 1,000,000
+x = noaa_df$cellcount
+threshold <- 1000000
+thresh= function(x){
+  replace(x, x > threshold, NA)
+}
+
+#threshold2 <- 100000
+#thresh2 = function(x){
+ # replace(x, x < threshold2, NA)
+#} 
+
+
+noaa_df = noaa_df %>%
+  mutate(cellcount = thresh(cellcount))
 
 #noaa_df = noaa_df %>%
-#  mutate(cellcount = to_ml(cellcount))
+ # mutate(cellcount = thresh2(cellcount))
 
 summary(noaa_df$cellcount)
 
@@ -99,12 +111,14 @@ summary(noaa_df$cellcount)
 summary(noaa_df$sample_date)
 
 
-noaa_df = noaa_df[noaa_df$sample_date >= "2000-01-01" & noaa_df$sample_date <= "2019-02-07",]
+noaa_df = noaa_df[noaa_df$sample_date >= "2000-01-01" & noaa_df$sample_date <= "2019-01-01",]
 
 
 ############################################### Write csv
 noaa_df = na.omit(noaa_df)
 
 write.csv(noaa_df, file = "NOAA_Shiny_ALL.csv", row.names = TRUE)
+
+
 
 
