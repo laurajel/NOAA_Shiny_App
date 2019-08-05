@@ -1,57 +1,45 @@
-library(shiny)
-library(leaflet)
-library(dplyr)
-library(ggplot2)
-library(maps)
-library(tidyverse)
-library(RColorBrewer)
-
-# Define UI for application that draws a histogram
+# Define UI for application 
 shinyUI(fluidPage(
 
     # Application title
-    navbarPage("Harmful Algal Blooms", id="nav",
-      tabPanel("Interactive map",
-        div(class="outer")
-        )),
-                            
-# leaflet map
-        leafletOutput("map", width= 100, height= 100),
-                            
+      titlePanel("Harmful Algal Blooms"),
+         leafletOutput("map", width=1000, height=1000),
+           
 
-# building panel
+# building panel that floats
         absolutePanel(id = "controls", class = "panel panel-default", fixed = TRUE,
             draggable = TRUE, top = 60, left = "auto", right =20, bottom = "auto",
-            width = 330, height = "auto",
+            width = 700, height = "auto",
+            
 # Header on panel
 
-            h2("Algae Bloom Explorer"),
+            h2("Algae Explorer"),
             
             br(),
             br(),
+# selectable month
+           selectInput( "month", "Month", noaa_data$month),
 
-# Date Range on panel                    
-            dateRangeInput("date", strong("Date Range"), start = "2000-01-03", end = "2019-02-07",
-                    min = "2000-01-03", max = "2019-02-07"),
             br(),
+            hr(),
+            br(),
+# year slider            
+            sliderInput("year", "Select Year:",
+                   min = 2000, max = 2018,
+                   value = 0, step = 1,
+                   sep = "",
+                   animate = TRUE),
+
+            br(),
+            hr(),
             br(),
 
-# Date animation            
-            sliderInput("animation", "Date Animation:",
-                        min = 2000, max = 2019,
-                        value = 1, step = 10,
-                        animate =
-                            animationOptions(interval = 300, loop = TRUE)),
-                     
-            plotOutput("scatterCellcount", height = 250)
-            
-            ), 
-                     
-
-        # Show a plot of the generated distribution
-        mainPanel(
-            plotOutput("distPlot"),
-            mapOutput("leafmap")
-        )
+# plot on panel       
+            plotOutput("scatterCellcount",  height = 500)
+        
+      )
     )
-)
+  )
+
+
+
