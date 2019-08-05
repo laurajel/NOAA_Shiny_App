@@ -1,35 +1,36 @@
 shinyServer(function(input, output, session) {
   
 ## names for the leaflet plot  
-  mybins=seq(100, 1001000, by=100000)  ###### 
+  mybins=seq(100000, 1001000, by=100000)  ###### 
   mypalette = colorBin( palette="RdPu", domain=noaa_data$cellcount, na.color="transparent", bins=mybins)
 
-# text for hover   
-  mytext=paste("Cellcount: ", noaa_data$cellcount, "<br/>", "Stations: ", noaa_data$description, "<br/>", "Water Temperature: ", noaa_data$water_temp, "<br/>", "Date: ", noaa_data$sample_date, sep="") %>%
+# text for hover pop-up on leaflet points 
+  mytext=paste("Cellcount: ", noaa_data$cellcount, "<br/>", "Stations: ", noaa_data$description, "<br/>","Salinity: ", noaa_data$salinity, "<br/>", "Water Temperature: ", noaa_data$water_temp, "<br/>", "Date: ", noaa_data$sample_date, sep="") %>%
     lapply(htmltools::HTML)
   
-## update when month and year change on panel  
+## update when year change on panel  
   observe({
-    date_new <- unique(noaa_data %>% 
-                         filter(noaa_data$year == input$year & noaa_data$month == input$month) %>%
-                         .$date_new)
-    updateSelectInput(
-      session, "date_new",
-      choices = date_new,
-      selected = date_new[1])
     
+    date_year <- unique(noaa_data %>% 
+                        filter(noaa_data$year == input$year) %>% 
+                        .$date_year)
+   
   })
   
-  date_by <- reactive({
+  date_change <- reactive({
     noaa_data %>%
-      filter(year == input$year & month == input$month)
+      filter(year == input$year)
   })
-#leaflet (does not change)  
+  
+  
+  
+#leaflet plot of algal bloom and their locations  
   
   output$map <- renderLeaflet({
-    leaflet (noaa_data) %>% 
+    date_change() %>% # reactive expression
+    leaflet () %>% 
       addTiles()  %>% 
-      setView( lat= 26, lng= -82 , zoom=4) %>%
+      setView( lat= 25.3043, lng= -90.0659 , zoom=6) %>%
       addProviderTiles("Esri.WorldImagery") %>%
       addCircleMarkers(~longitude, ~latitude, 
                        fillColor = ~mypalette(cellcount), fillOpacity = 0.7, color="white", radius=8, stroke=FALSE,
@@ -42,19 +43,19 @@ shinyServer(function(input, output, session) {
       
   })
   # scatter plot on panel 
+  
   output$scatterCellcount<- renderPlot(
-    date_by() %>%
-      ggplot( aes(x=water_temp, y=cellcount)) +
-      geom_point() +
-      labs(x = "Water Temp (F)", y = "Cell count (cells/L)", title = "Water Temp vs. Cell count")
-  ) 
   
-  
- 
- 
-  
-
+    date_change( ) %>% # reactive expression
+      ggplot( aes(x=cellcount, y=salinity)) +
+      geom_point()
+      
+   )
 })    
+
+
+
+
 
 
 
