@@ -4,6 +4,7 @@ library(dplyr)
 
 ### importing csv
 noaa_df = readr::read_csv("./habsos_20190211.csv")
+
 names(noaa_df)
 
 noaa_df[noaa_df == 0] <- NA
@@ -115,9 +116,12 @@ noaa_df = noaa_df[noaa_df$sample_date >= "2000-01-01" & noaa_df$sample_date <= "
 
 
 ############################################### Write csv
+
 noaa_df = na.omit(noaa_df)
 
 write.csv(noaa_df, file = "NOAA_Shiny_ALL.csv", row.names = TRUE)
+
+
 
 
 
